@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Surf & Summit">
-<title>Surf &amp; Summit</title>
+<meta name="apple-mobile-web-app-title" content="My Workouts">
+<title>My Workouts</title>
 <style>
   :root {
     --ocean: #0a6e8a;
@@ -18,13 +18,15 @@
     --summit-light: #3d6b5a;
     --accent: #e8762b;
     --accent-light: #f59542;
+    --kb-primary: #6b3fa0;
+    --kb-light: #9b6fd4;
+    --kb-dark: #4a2575;
     --text: #1a2e35;
     --text-muted: #5a7a85;
     --white: #ffffff;
     --card-bg: #ffffff;
     --page-bg: #f0f7f9;
     --success: #2ecc71;
-    --warning: #f39c12;
     --danger: #e74c3c;
     --radius: 14px;
     --shadow: 0 2px 12px rgba(10,110,138,0.10);
@@ -33,284 +35,138 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html { font-size: 16px; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--page-bg);
-    color: var(--text);
-    min-height: 100dvh;
-    overflow-x: hidden;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--page-bg); color: var(--text); min-height: 100dvh; overflow-x: hidden; }
 
   /* ── HEADER ── */
-  .app-header {
-    background: linear-gradient(135deg, var(--ocean-dark) 0%, var(--ocean) 60%, var(--ocean-light) 100%);
-    color: white;
-    padding: 52px 20px 20px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: var(--shadow-lg);
-  }
+  .app-header { background: linear-gradient(135deg, var(--ocean-dark) 0%, var(--ocean) 60%, var(--ocean-light) 100%); color: white; padding: 52px 20px 20px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-lg); transition: background 0.4s; }
+  .app-header.kb-theme { background: linear-gradient(135deg, var(--kb-dark) 0%, var(--kb-primary) 60%, var(--kb-light) 100%); }
   .app-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
   .app-header p { font-size: 0.8rem; opacity: 0.75; margin-top: 2px; }
   .header-row { display: flex; align-items: center; justify-content: space-between; }
-  .overall-timer {
-    background: rgba(255,255,255,0.15);
-    border-radius: 10px;
-    padding: 6px 14px;
-    font-size: 1.3rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 1px;
-    cursor: pointer;
-    border: 1px solid rgba(255,255,255,0.25);
-    transition: background 0.2s;
-  }
+  .overall-timer { background: rgba(255,255,255,0.15); border-radius: 10px; padding: 6px 14px; font-size: 1.3rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 1px; cursor: pointer; border: 1px solid rgba(255,255,255,0.25); transition: background 0.2s; }
   .overall-timer:active { background: rgba(255,255,255,0.25); }
   .timer-label { font-size: 0.6rem; opacity: 0.7; text-align: center; margin-top: 1px; }
 
   /* ── TABS ── */
-  .tab-bar {
-    display: flex;
-    background: var(--ocean-dark);
-    padding: 0 20px;
-    gap: 4px;
-  }
-  .tab-btn {
-    flex: 1;
-    padding: 10px 0;
-    background: transparent;
-    border: none;
-    color: rgba(255,255,255,0.55);
-    font-size: 0.82rem;
-    font-weight: 600;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-  }
-  .tab-btn.active {
-    color: white;
-    border-bottom-color: var(--accent-light);
-  }
+  .tab-bar { display: flex; background: var(--ocean-dark); padding: 0 20px; gap: 4px; transition: background 0.4s; }
+  .tab-bar.kb-theme { background: var(--kb-dark); }
+  .tab-btn { flex: 1; padding: 10px 0; background: transparent; border: none; color: rgba(255,255,255,0.55); font-size: 0.78rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+  .tab-btn.active { color: white; border-bottom-color: var(--accent-light); }
+  .tab-btn:disabled { opacity: 0.3; cursor: default; }
 
-  /* ── MAIN CONTENT ── */
+  /* ── PAGES ── */
   .page { display: none; padding: 16px 16px calc(16px + var(--safe-bottom)); }
   .page.active { display: block; }
+  @media (min-width: 600px) { .page { max-width: 560px; margin: 0 auto; } }
+
+  /* ── HOME SCREEN ── */
+  .home-label { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; margin-top: 4px; }
+  .workout-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 12px; display: flex; align-items: center; gap: 14px; padding: 16px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+  .workout-card:active { transform: scale(0.98); box-shadow: none; }
+  .wc-emoji { font-size: 2.2rem; flex-shrink: 0; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; border-radius: 14px; }
+  .wc-emoji.ss { background: linear-gradient(135deg, #a8d8ea, #064d63); }
+  .wc-emoji.kb { background: linear-gradient(135deg, #d4a8ea, #4a2575); }
+  .wc-info { flex: 1; }
+  .wc-name { font-size: 1rem; font-weight: 800; color: var(--text); }
+  .wc-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+  .wc-tags { display: flex; gap: 5px; margin-top: 7px; flex-wrap: wrap; }
+  .wc-tag { font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; background: var(--page-bg); color: var(--text-muted); }
+  .wc-arrow { font-size: 1.6rem; color: var(--text-muted); font-weight: 300; flex-shrink: 0; }
+  .home-recent-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin: 18px 0 10px; }
 
   /* ── SECTION CARDS ── */
-  .section-card {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    margin-bottom: 14px;
-    overflow: hidden;
-  }
-  .section-header {
-    display: flex;
-    align-items: center;
-    padding: 14px 16px;
-    cursor: pointer;
-    user-select: none;
-    gap: 12px;
-    background: white;
-    transition: background 0.15s;
-  }
+  .section-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 14px; overflow: hidden; }
+  .section-header { display: flex; align-items: center; padding: 14px 16px; cursor: pointer; user-select: none; gap: 12px; background: white; transition: background 0.15s; }
   .section-header:active { background: var(--page-bg); }
-  .section-icon {
-    width: 38px; height: 38px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-  }
-  .icon-warmup { background: linear-gradient(135deg, #f8d7a0, #f5a623); }
-  .icon-a { background: linear-gradient(135deg, #a8d8ea, #0a6e8a); }
-  .icon-b { background: linear-gradient(135deg, #a8e6cf, #2d4a3e); }
-  .icon-c { background: linear-gradient(135deg, #ffcba4, #e8762b); }
-  .icon-cool { background: linear-gradient(135deg, #c8e6f0, #5ba8c9); }
-
+  .section-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+  .icon-warmup  { background: linear-gradient(135deg, #f8d7a0, #f5a623); }
+  .icon-a       { background: linear-gradient(135deg, #a8d8ea, #0a6e8a); }
+  .icon-b       { background: linear-gradient(135deg, #a8e6cf, #2d4a3e); }
+  .icon-c       { background: linear-gradient(135deg, #ffcba4, #e8762b); }
+  .icon-cool    { background: linear-gradient(135deg, #c8e6f0, #5ba8c9); }
+  .icon-complex { background: linear-gradient(135deg, #d4a8ea, #6b3fa0); }
+  .icon-finisher{ background: linear-gradient(135deg, #f5c6a0, #c0570e); }
   .section-info { flex: 1; }
   .section-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
   .section-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
   .section-status { font-size: 1.1rem; flex-shrink: 0; }
   .chevron { font-size: 0.75rem; color: var(--text-muted); transition: transform 0.25s; flex-shrink: 0; }
   .section-card.open .chevron { transform: rotate(180deg); }
-
   .section-body { display: none; padding: 0 16px 16px; border-top: 1px solid var(--page-bg); }
   .section-card.open .section-body { display: block; }
+  .section-card.completed .section-header { background: #f0fff4; }
+  .section-card.completed .section-title { color: var(--success); }
 
   /* ── EXERCISES ── */
-  .exercise {
-    padding: 11px 0;
-    border-bottom: 1px solid var(--page-bg);
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
+  .exercise { padding: 11px 0; border-bottom: 1px solid var(--page-bg); display: flex; align-items: flex-start; gap: 10px; }
   .exercise:last-child { border-bottom: none; }
   .ex-name { font-size: 0.9rem; font-weight: 600; color: var(--text); }
   .ex-detail { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
   .ex-why { font-size: 0.72rem; color: var(--ocean); margin-top: 4px; font-style: italic; }
+  .ex-cue { font-size: 0.72rem; color: var(--kb-primary); margin-top: 4px; font-style: italic; }
   .ex-info { flex: 1; }
-  .ex-bullet {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--ocean-light);
-    margin-top: 6px;
-    flex-shrink: 0;
-  }
+  .ex-bullet { width: 8px; height: 8px; border-radius: 50%; background: var(--ocean-light); margin-top: 6px; flex-shrink: 0; }
+  .ex-num { width: 22px; height: 22px; border-radius: 50%; background: var(--kb-primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; flex-shrink: 0; margin-top: 2px; }
 
   /* ── ROUND TRACKER ── */
   .round-tracker { margin: 14px 0 10px; }
   .round-tracker-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
   .rounds-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .round-pill {
-    display: flex; align-items: center; justify-content: center;
-    width: 52px; height: 36px;
-    border-radius: 8px;
-    border: 2px solid var(--ocean-light);
-    color: var(--ocean);
-    font-size: 0.82rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.18s;
-    background: white;
-  }
-  .round-pill.done {
-    background: var(--ocean);
-    border-color: var(--ocean);
-    color: white;
-  }
+  .round-pill { display: flex; align-items: center; justify-content: center; width: 52px; height: 36px; border-radius: 8px; border: 2px solid var(--ocean-light); color: var(--ocean); font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.18s; background: white; }
+  .round-pill.kb { border-color: var(--kb-light); color: var(--kb-primary); }
+  .round-pill.done { background: var(--ocean); border-color: var(--ocean); color: white; }
+  .round-pill.kb.done { background: var(--kb-primary); border-color: var(--kb-primary); }
   .round-pill.done::after { content: ' ✓'; }
 
-  /* ── TIMER COMPONENTS ── */
-  .timer-box {
-    background: var(--ocean-dark);
-    border-radius: 12px;
-    padding: 16px;
-    margin: 12px 0;
-    text-align: center;
-    color: white;
-  }
-  .timer-box.rest-timer { background: linear-gradient(135deg, var(--summit), var(--summit-light)); }
-  .timer-box.emom-timer { background: linear-gradient(135deg, var(--accent), #c0570e); }
-  .timer-display {
-    font-size: 3rem;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 2px;
-    line-height: 1;
-    margin: 6px 0;
-  }
+  /* ── TIMERS ── */
+  .timer-box { background: var(--ocean-dark); border-radius: 12px; padding: 16px; margin: 12px 0; text-align: center; color: white; }
+  .timer-box.rest-timer  { background: linear-gradient(135deg, var(--summit), var(--summit-light)); }
+  .timer-box.emom-timer  { background: linear-gradient(135deg, var(--accent), #c0570e); }
+  .timer-box.kb-rest     { background: linear-gradient(135deg, var(--kb-dark), var(--kb-primary)); }
+  .timer-box.finisher-box{ background: linear-gradient(135deg, #7b3f00, var(--accent)); }
+  .timer-display { font-size: 3rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: 2px; line-height: 1; margin: 6px 0; }
   .timer-label-top { font-size: 0.72rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 1px; }
   .timer-sublabel { font-size: 0.8rem; opacity: 0.85; margin-top: 4px; font-weight: 500; }
   .timer-btns { display: flex; gap: 8px; margin-top: 12px; justify-content: center; }
-  .timer-btn {
-    padding: 9px 20px;
-    border-radius: 8px;
-    border: none;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    background: rgba(255,255,255,0.2);
-    color: white;
-    transition: background 0.15s;
-    min-width: 80px;
-  }
+  .timer-btn { padding: 9px 20px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 700; cursor: pointer; background: rgba(255,255,255,0.2); color: white; transition: background 0.15s; min-width: 80px; }
   .timer-btn:active { background: rgba(255,255,255,0.35); }
   .timer-btn.primary { background: white; color: var(--ocean-dark); }
   .timer-btn.primary:active { background: var(--sand); }
-  .timer-btn.danger { background: rgba(231,76,60,0.7); }
 
-  /* EMOM specific */
-  .emom-minute-badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.2);
-    border-radius: 8px;
-    padding: 4px 14px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-  .emom-task-box {
-    background: rgba(255,255,255,0.12);
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin: 10px 0 0;
-    font-size: 0.88rem;
-    line-height: 1.5;
-    text-align: left;
-  }
+  /* EMOM */
+  .emom-minute-badge { display: inline-block; background: rgba(255,255,255,0.2); border-radius: 8px; padding: 4px 14px; font-size: 0.78rem; font-weight: 600; margin-bottom: 6px; }
+  .emom-task-box { background: rgba(255,255,255,0.12); border-radius: 10px; padding: 12px 14px; margin: 10px 0 0; font-size: 0.88rem; line-height: 1.5; text-align: left; }
   .emom-task-box strong { display: block; margin-bottom: 4px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.75; }
   .emom-progress { display: flex; gap: 5px; margin-top: 12px; justify-content: center; flex-wrap: wrap; }
-  .emom-dot {
-    width: 28px; height: 10px;
-    border-radius: 5px;
-    background: rgba(255,255,255,0.25);
-    transition: background 0.3s;
-  }
+  .emom-dot { width: 28px; height: 10px; border-radius: 5px; background: rgba(255,255,255,0.25); transition: background 0.3s; }
   .emom-dot.done { background: rgba(255,255,255,0.85); }
   .emom-dot.current { background: white; }
 
-  /* ── COMPLETE BUTTON ── */
-  .complete-btn {
-    width: 100%;
-    padding: 16px;
-    border-radius: var(--radius);
-    border: none;
-    background: linear-gradient(135deg, var(--accent), var(--accent-light));
-    color: white;
-    font-size: 1rem;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(232,118,43,0.35);
-    margin-top: 8px;
-    transition: opacity 0.2s, transform 0.1s;
-  }
+  /* Finisher step display */
+  .finisher-step-label { font-size: 1.1rem; font-weight: 800; margin: 4px 0 2px; }
+  .finisher-step-sub { font-size: 0.8rem; opacity: 0.8; margin-bottom: 4px; }
+
+  /* ── COMPLETE BTN ── */
+  .complete-btn { width: 100%; padding: 16px; border-radius: var(--radius); border: none; background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: white; font-size: 1rem; font-weight: 800; letter-spacing: 0.5px; cursor: pointer; box-shadow: 0 4px 16px rgba(232,118,43,0.35); margin-top: 8px; transition: opacity 0.2s, transform 0.1s; }
   .complete-btn:active { opacity: 0.85; transform: scale(0.98); }
   .complete-btn:disabled { background: #ccc; box-shadow: none; cursor: default; }
 
-  /* ── PROGRESS SUMMARY ── */
+  /* ── PROGRESS BAR ── */
   .progress-bar-wrap { background: var(--page-bg); height: 6px; border-radius: 3px; margin: 10px 0 4px; overflow: hidden; }
   .progress-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--ocean), var(--ocean-light)); transition: width 0.4s; }
   .progress-text { font-size: 0.72rem; color: var(--text-muted); text-align: right; }
 
-  /* ── HISTORY PAGE ── */
+  /* ── HISTORY ── */
   .history-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
   .history-empty .big-emoji { font-size: 3rem; margin-bottom: 12px; }
-  .streak-card {
-    background: linear-gradient(135deg, var(--ocean-dark), var(--ocean));
-    color: white;
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 14px;
-    display: flex;
-    gap: 16px;
-    align-items: center;
-  }
+  .streak-card { background: linear-gradient(135deg, var(--ocean-dark), var(--ocean)); color: white; border-radius: var(--radius); padding: 20px; margin-bottom: 14px; display: flex; gap: 16px; align-items: center; }
   .streak-num { font-size: 3rem; font-weight: 900; line-height: 1; }
   .streak-label { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; }
   .streak-sub { font-size: 0.72rem; opacity: 0.65; margin-top: 4px; }
-  .history-item {
-    background: white;
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    box-shadow: var(--shadow);
-  }
-  .history-date-badge {
-    background: var(--ocean);
-    color: white;
-    border-radius: 8px;
-    padding: 6px 10px;
-    text-align: center;
-    flex-shrink: 0;
-    min-width: 48px;
-  }
+  .history-item { background: white; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow); }
+  .history-date-badge { color: white; border-radius: 8px; padding: 6px 10px; text-align: center; flex-shrink: 0; min-width: 48px; }
+  .history-date-badge.ss { background: var(--ocean); }
+  .history-date-badge.kb { background: var(--kb-primary); }
   .history-date-badge .day { font-size: 1.3rem; font-weight: 800; line-height: 1; }
   .history-date-badge .mon { font-size: 0.65rem; text-transform: uppercase; opacity: 0.8; }
   .history-detail { flex: 1; }
@@ -318,48 +174,25 @@
   .history-detail .sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
   .history-check { font-size: 1.4rem; }
 
-  /* ── TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: calc(20px + var(--safe-bottom));
-    left: 50%; transform: translateX(-50%) translateY(80px);
-    background: var(--summit);
-    color: white;
-    padding: 12px 24px;
-    border-radius: 30px;
-    font-size: 0.88rem;
-    font-weight: 600;
-    box-shadow: var(--shadow-lg);
-    z-index: 999;
-    opacity: 0;
-    transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
-    white-space: nowrap;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
   /* ── COOL DOWN ── */
   .cooldown-item { padding: 10px 0; border-bottom: 1px solid var(--page-bg); }
   .cooldown-item:last-child { border-bottom: none; }
   .cooldown-name { font-size: 0.9rem; font-weight: 600; }
   .cooldown-tip { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; }
 
-  /* section completed state */
-  .section-card.completed .section-header { background: #f0fff4; }
-  .section-card.completed .section-title { color: var(--success); }
-
-  @media (min-width: 600px) {
-    .page { max-width: 560px; margin: 0 auto; }
-  }
+  /* ── TOAST ── */
+  .toast { position: fixed; bottom: calc(20px + var(--safe-bottom)); left: 50%; transform: translateX(-50%) translateY(80px); background: var(--summit); color: white; padding: 12px 24px; border-radius: 30px; font-size: 0.88rem; font-weight: 600; box-shadow: var(--shadow-lg); z-index: 999; opacity: 0; transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
-<div class="app-header">
+<div class="app-header" id="appHeader">
   <div class="header-row">
     <div>
-      <h1>🌊 Surf &amp; Summit</h1>
-      <p>Kettlebell Protocol · 45 Minutes</p>
+      <h1 id="appTitle">💪 My Workouts</h1>
+      <p id="appSubtitle">Select a workout to begin</p>
     </div>
     <div>
       <div class="overall-timer" id="overallTimerDisplay" onclick="toggleOverallTimer()">45:00</div>
@@ -369,307 +202,483 @@
 </div>
 
 <!-- TABS -->
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="showTab('workout')">🏋️ Workout</button>
+<div class="tab-bar" id="tabBar">
+  <button class="tab-btn active" onclick="showTab('home')">🏠 Home</button>
+  <button class="tab-btn" id="workoutTabBtn" onclick="showTab('workout')" disabled>🏋️ Workout</button>
   <button class="tab-btn" onclick="showTab('history')">📅 History</button>
 </div>
 
-<!-- WORKOUT PAGE -->
-<div class="page active" id="page-workout">
+<!-- ══ HOME PAGE ══ -->
+<div class="page active" id="page-home">
+  <div class="home-label">Choose Your Workout</div>
 
-  <!-- Overall progress -->
+  <div class="workout-card" onclick="selectWorkout('ss')">
+    <div class="wc-emoji ss">🌊</div>
+    <div class="wc-info">
+      <div class="wc-name">Surf &amp; Summit</div>
+      <div class="wc-desc">Kettlebell Protocol · 45 min</div>
+      <div class="wc-tags"><span class="wc-tag">Power</span><span class="wc-tag">Endurance</span><span class="wc-tag">EMOM</span></div>
+    </div>
+    <div class="wc-arrow">›</div>
+  </div>
+
+  <div class="workout-card" onclick="selectWorkout('kb')">
+    <div class="wc-emoji kb">🔔</div>
+    <div class="wc-info">
+      <div class="wc-name">Dave's Kettlebell</div>
+      <div class="wc-desc">3 Months to Fitness · 45 min</div>
+      <div class="wc-tags"><span class="wc-tag">Strength</span><span class="wc-tag">Complex</span><span class="wc-tag">Core</span></div>
+    </div>
+    <div class="wc-arrow">›</div>
+  </div>
+
+  <div id="homeRecentSection" style="display:none">
+    <div class="home-recent-title">Recent</div>
+    <div id="homeRecentList"></div>
+  </div>
+</div>
+
+<!-- ══ WORKOUT PAGE ══ -->
+<div class="page" id="page-workout">
   <div style="padding:4px 0 2px;">
     <div class="progress-bar-wrap"><div class="progress-bar-fill" id="overallProgress" style="width:0%"></div></div>
     <div class="progress-text" id="overallProgressText">0 of 5 sections complete</div>
   </div>
 
-  <!-- ══ WARM UP ══ -->
-  <div class="section-card" id="section-warmup">
-    <div class="section-header" onclick="toggleSection('warmup')">
-      <div class="section-icon icon-warmup">☀️</div>
-      <div class="section-info">
-        <div class="section-title">Warm-Up</div>
-        <div class="section-meta">8 minutes · Joint lubrication &amp; stabilizers</div>
-      </div>
-      <div class="section-status" id="status-warmup">⭕</div>
-      <div class="chevron">▼</div>
-    </div>
-    <div class="section-body">
-      <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Haloes</div><div class="ex-detail">10 reps each direction</div><div class="ex-why">Shoulder mobility for swimming</div></div></div>
-      <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Hip Bridges</div><div class="ex-detail">15 reps</div><div class="ex-why">Glute activation for biking</div></div></div>
-      <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Cat-Cow / Bird-Dog</div><div class="ex-detail">10 reps each</div><div class="ex-why">Spinal health</div></div></div>
-      <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Goblet Squat Prying</div><div class="ex-detail">5 reps · Sit deep, use elbows to push knees out</div><div class="ex-why">Hip opener &amp; squat depth</div></div></div>
+  <!-- ════ SURF & SUMMIT ════ -->
+  <div id="workout-ss" style="display:none">
 
-      <div class="timer-box">
-        <div class="timer-label-top">Warm-Up Timer</div>
-        <div class="timer-display" id="warmupTimerDisplay">8:00</div>
-        <div class="timer-btns">
-          <button class="timer-btn primary" id="warmupBtn" onclick="timerAction('warmup')">Start</button>
-          <button class="timer-btn" onclick="timerReset('warmup')">Reset</button>
+    <div class="section-card" id="section-warmup">
+      <div class="section-header" onclick="toggleSection('warmup')">
+        <div class="section-icon icon-warmup">☀️</div>
+        <div class="section-info"><div class="section-title">Warm-Up</div><div class="section-meta">8 minutes · Joint lubrication &amp; stabilizers</div></div>
+        <div class="section-status" id="status-warmup">⭕</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Haloes</div><div class="ex-detail">10 reps each direction</div><div class="ex-why">Shoulder mobility for swimming</div></div></div>
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Hip Bridges</div><div class="ex-detail">15 reps</div><div class="ex-why">Glute activation for biking</div></div></div>
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Cat-Cow / Bird-Dog</div><div class="ex-detail">10 reps each</div><div class="ex-why">Spinal health</div></div></div>
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Goblet Squat Prying</div><div class="ex-detail">5 reps · Sit deep, use elbows to push knees out</div></div></div>
+        <div class="timer-box">
+          <div class="timer-label-top">Warm-Up Timer</div>
+          <div class="timer-display" id="warmupTimerDisplay">8:00</div>
+          <div class="timer-btns">
+            <button class="timer-btn primary" id="warmupBtn" onclick="timerAction('warmup')">Start</button>
+            <button class="timer-btn" onclick="timerReset('warmup')">Reset</button>
+          </div>
         </div>
+        <button class="complete-btn" onclick="markSectionDone('warmup')">✓ Warm-Up Complete</button>
       </div>
-      <button class="complete-btn" onclick="markSectionDone('warmup')">✓ Warm-Up Complete</button>
     </div>
-  </div>
 
-  <!-- ══ BLOCK A ══ -->
-  <div class="section-card" id="section-a">
-    <div class="section-header" onclick="toggleSection('a')">
-      <div class="section-icon icon-a">⚡</div>
-      <div class="section-info">
-        <div class="section-title">Block A · Power &amp; Posterior Chain</div>
-        <div class="section-meta">12 minutes · 4 rounds · 60s rest between rounds</div>
+    <div class="section-card" id="section-a">
+      <div class="section-header" onclick="toggleSection('a')">
+        <div class="section-icon icon-a">⚡</div>
+        <div class="section-info"><div class="section-title">Block A · Power &amp; Posterior Chain</div><div class="section-meta">12 minutes · 4 rounds · 60s rest</div></div>
+        <div class="section-status" id="status-a">⭕</div>
+        <div class="chevron">▼</div>
       </div>
-      <div class="section-status" id="status-a">⭕</div>
-      <div class="chevron">▼</div>
-    </div>
-    <div class="section-body">
-      <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">KB Snatches / High Pulls</div><div class="ex-detail">8 reps per arm</div><div class="ex-why">Explosive hip drive for sprinting on sand &amp; climbing on the bike</div></div></div>
-      <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Goblet Reverse Lunges</div><div class="ex-detail">10 reps per leg</div><div class="ex-why">Unilateral leg drive for pedaling &amp; running through surf</div></div></div>
-      <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Two-Handed Swings</div><div class="ex-detail">20 reps</div><div class="ex-why">Gold standard for MTB endurance &amp; snap</div></div></div>
-
-      <div class="round-tracker">
-        <div class="round-tracker-label">Round Progress</div>
-        <div class="rounds-row" id="rounds-a">
-          <div class="round-pill" onclick="toggleRound('a',0)">R1</div>
-          <div class="round-pill" onclick="toggleRound('a',1)">R2</div>
-          <div class="round-pill" onclick="toggleRound('a',2)">R3</div>
-          <div class="round-pill" onclick="toggleRound('a',3)">R4</div>
+      <div class="section-body">
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">KB Snatches / High Pulls</div><div class="ex-detail">8 reps per arm</div><div class="ex-why">Explosive hip drive for sprinting on sand &amp; climbing on the bike</div></div></div>
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Goblet Reverse Lunges</div><div class="ex-detail">10 reps per leg</div><div class="ex-why">Unilateral leg drive for pedaling &amp; running through surf</div></div></div>
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Two-Handed Swings</div><div class="ex-detail">20 reps</div><div class="ex-why">Gold standard for MTB endurance &amp; snap</div></div></div>
+        <div class="round-tracker">
+          <div class="round-tracker-label">Round Progress</div>
+          <div class="rounds-row" id="rounds-a">
+            <div class="round-pill" onclick="toggleRound('a',0)">R1</div>
+            <div class="round-pill" onclick="toggleRound('a',1)">R2</div>
+            <div class="round-pill" onclick="toggleRound('a',2)">R3</div>
+            <div class="round-pill" onclick="toggleRound('a',3)">R4</div>
+          </div>
         </div>
-      </div>
-
-      <div class="timer-box rest-timer">
-        <div class="timer-label-top">Rest Timer</div>
-        <div class="timer-display" id="restTimerA">1:00</div>
-        <div class="timer-sublabel">60 seconds between rounds</div>
-        <div class="timer-btns">
-          <button class="timer-btn primary" id="restBtnA" onclick="timerAction('restA')">Start Rest</button>
-          <button class="timer-btn" onclick="timerReset('restA')">Reset</button>
+        <div class="timer-box rest-timer">
+          <div class="timer-label-top">Rest Timer</div>
+          <div class="timer-display" id="restTimerA">1:00</div>
+          <div class="timer-sublabel">60 seconds between rounds</div>
+          <div class="timer-btns">
+            <button class="timer-btn primary" id="restBtnA" onclick="timerAction('restA')">Start Rest</button>
+            <button class="timer-btn" onclick="timerReset('restA')">Reset</button>
+          </div>
         </div>
+        <button class="complete-btn" onclick="markSectionDone('a')">✓ Block A Complete</button>
       </div>
-      <button class="complete-btn" onclick="markSectionDone('a')">✓ Block A Complete</button>
     </div>
-  </div>
 
-  <!-- ══ BLOCK B ══ -->
-  <div class="section-card" id="section-b">
-    <div class="section-header" onclick="toggleSection('b')">
-      <div class="section-icon icon-b">🏔️</div>
-      <div class="section-info">
-        <div class="section-title">Block B · Stability &amp; Core Integration</div>
-        <div class="section-meta">12 minutes · 3 rounds · 45s rest between rounds</div>
+    <div class="section-card" id="section-b">
+      <div class="section-header" onclick="toggleSection('b')">
+        <div class="section-icon icon-b">🏔️</div>
+        <div class="section-info"><div class="section-title">Block B · Stability &amp; Core Integration</div><div class="section-meta">12 minutes · 3 rounds · 45s rest</div></div>
+        <div class="section-status" id="status-b">⭕</div>
+        <div class="chevron">▼</div>
       </div>
-      <div class="section-status" id="status-b">⭕</div>
-      <div class="chevron">▼</div>
-    </div>
-    <div class="section-body">
-      <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Clean &amp; Press</div><div class="ex-detail">6 reps per arm</div><div class="ex-why">Overhead strength for lifting gear &amp; lifesaving</div></div></div>
-      <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Single-Leg RDL</div><div class="ex-detail">10 reps per leg</div><div class="ex-why">Knee health &amp; balance on technical bike descents</div></div></div>
-      <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Renegade Rows</div><div class="ex-detail">8 reps per arm · in plank position</div><div class="ex-why">Anti-rotation core for swim strokes &amp; cornering</div></div></div>
-
-      <div class="round-tracker">
-        <div class="round-tracker-label">Round Progress</div>
-        <div class="rounds-row" id="rounds-b">
-          <div class="round-pill" onclick="toggleRound('b',0)">R1</div>
-          <div class="round-pill" onclick="toggleRound('b',1)">R2</div>
-          <div class="round-pill" onclick="toggleRound('b',2)">R3</div>
+      <div class="section-body">
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Clean &amp; Press</div><div class="ex-detail">6 reps per arm</div><div class="ex-why">Overhead strength for lifting gear &amp; lifesaving</div></div></div>
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Single-Leg RDL</div><div class="ex-detail">10 reps per leg</div><div class="ex-why">Knee health &amp; balance on technical descents</div></div></div>
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Renegade Rows</div><div class="ex-detail">8 reps per arm · in plank position</div><div class="ex-why">Anti-rotation core for swim strokes &amp; cornering</div></div></div>
+        <div class="round-tracker">
+          <div class="round-tracker-label">Round Progress</div>
+          <div class="rounds-row" id="rounds-b">
+            <div class="round-pill" onclick="toggleRound('b',0)">R1</div>
+            <div class="round-pill" onclick="toggleRound('b',1)">R2</div>
+            <div class="round-pill" onclick="toggleRound('b',2)">R3</div>
+          </div>
         </div>
-      </div>
-
-      <div class="timer-box rest-timer">
-        <div class="timer-label-top">Rest Timer</div>
-        <div class="timer-display" id="restTimerB">0:45</div>
-        <div class="timer-sublabel">45 seconds between rounds</div>
-        <div class="timer-btns">
-          <button class="timer-btn primary" id="restBtnB" onclick="timerAction('restB')">Start Rest</button>
-          <button class="timer-btn" onclick="timerReset('restB')">Reset</button>
+        <div class="timer-box rest-timer">
+          <div class="timer-label-top">Rest Timer</div>
+          <div class="timer-display" id="restTimerB">0:45</div>
+          <div class="timer-sublabel">45 seconds between rounds</div>
+          <div class="timer-btns">
+            <button class="timer-btn primary" id="restBtnB" onclick="timerAction('restB')">Start Rest</button>
+            <button class="timer-btn" onclick="timerReset('restB')">Reset</button>
+          </div>
         </div>
+        <button class="complete-btn" onclick="markSectionDone('b')">✓ Block B Complete</button>
       </div>
-      <button class="complete-btn" onclick="markSectionDone('b')">✓ Block B Complete</button>
     </div>
-  </div>
 
-  <!-- ══ BLOCK C: EMOM ══ -->
-  <div class="section-card" id="section-c">
-    <div class="section-header" onclick="toggleSection('c')">
-      <div class="section-icon icon-c">🔥</div>
-      <div class="section-info">
-        <div class="section-title">Block C · "Lifesaver" Conditioning</div>
-        <div class="section-meta">8 minutes · EMOM style</div>
+    <div class="section-card" id="section-c">
+      <div class="section-header" onclick="toggleSection('c')">
+        <div class="section-icon icon-c">🔥</div>
+        <div class="section-info"><div class="section-title">Block C · "Lifesaver" Conditioning</div><div class="section-meta">8 minutes · EMOM style</div></div>
+        <div class="section-status" id="status-c">⭕</div>
+        <div class="chevron">▼</div>
       </div>
-      <div class="section-status" id="status-c">⭕</div>
-      <div class="chevron">▼</div>
-    </div>
-    <div class="section-body">
-      <div class="exercise"><div class="ex-bullet" style="background:var(--accent)"></div><div class="ex-info"><div class="ex-name">Odd Minutes (1,3,5,7)</div><div class="ex-detail">15 Kettlebell Swings + 5 Burpees</div></div></div>
-      <div class="exercise"><div class="ex-bullet" style="background:var(--summit)"></div><div class="ex-info"><div class="ex-name">Even Minutes (2,4,6,8)</div><div class="ex-detail">30-second Farmer's Walk · Carry KB one hand, switch halfway</div><div class="ex-why">Grip &amp; rip strength + core stability under fatigue</div></div></div>
-
-      <div class="timer-box emom-timer">
-        <div class="emom-minute-badge" id="emomMinuteBadge">Minute 0 of 8</div>
-        <div class="timer-display" id="emomTimerDisplay">8:00</div>
-        <div id="emomTaskBox" class="emom-task-box" style="display:none">
-          <strong id="emomTaskType">ODD MINUTE</strong>
-          <span id="emomTaskText">15 KB Swings + 5 Burpees</span>
+      <div class="section-body">
+        <div class="exercise"><div class="ex-bullet" style="background:var(--accent)"></div><div class="ex-info"><div class="ex-name">Odd Minutes (1,3,5,7)</div><div class="ex-detail">15 Kettlebell Swings + 5 Burpees</div></div></div>
+        <div class="exercise"><div class="ex-bullet" style="background:var(--summit)"></div><div class="ex-info"><div class="ex-name">Even Minutes (2,4,6,8)</div><div class="ex-detail">30-second Farmer's Walk · switch hands halfway</div><div class="ex-why">Grip &amp; rip strength + core stability under fatigue</div></div></div>
+        <div class="timer-box emom-timer">
+          <div class="emom-minute-badge" id="emomMinuteBadge">Minute 0 of 8</div>
+          <div class="timer-display" id="emomTimerDisplay">8:00</div>
+          <div id="emomTaskBox" class="emom-task-box" style="display:none">
+            <strong id="emomTaskType">ODD MINUTE</strong>
+            <span id="emomTaskText">15 KB Swings + 5 Burpees</span>
+          </div>
+          <div class="emom-progress" id="emomProgress">
+            <div class="emom-dot" id="edot-1"></div><div class="emom-dot" id="edot-2"></div><div class="emom-dot" id="edot-3"></div><div class="emom-dot" id="edot-4"></div>
+            <div class="emom-dot" id="edot-5"></div><div class="emom-dot" id="edot-6"></div><div class="emom-dot" id="edot-7"></div><div class="emom-dot" id="edot-8"></div>
+          </div>
+          <div class="timer-btns">
+            <button class="timer-btn primary" id="emomBtn" onclick="timerAction('emom')">Start EMOM</button>
+            <button class="timer-btn" onclick="timerReset('emom')">Reset</button>
+          </div>
         </div>
-        <div class="emom-progress" id="emomProgress">
-          <div class="emom-dot" id="edot-1"></div>
-          <div class="emom-dot" id="edot-2"></div>
-          <div class="emom-dot" id="edot-3"></div>
-          <div class="emom-dot" id="edot-4"></div>
-          <div class="emom-dot" id="edot-5"></div>
-          <div class="emom-dot" id="edot-6"></div>
-          <div class="emom-dot" id="edot-7"></div>
-          <div class="emom-dot" id="edot-8"></div>
-        </div>
-        <div class="timer-btns">
-          <button class="timer-btn primary" id="emomBtn" onclick="timerAction('emom')">Start EMOM</button>
-          <button class="timer-btn" onclick="timerReset('emom')">Reset</button>
-        </div>
+        <button class="complete-btn" onclick="markSectionDone('c')">✓ Block C Complete</button>
       </div>
-      <button class="complete-btn" onclick="markSectionDone('c')">✓ Block C Complete</button>
     </div>
-  </div>
 
-  <!-- ══ COOL DOWN ══ -->
-  <div class="section-card" id="section-cooldown">
-    <div class="section-header" onclick="toggleSection('cooldown')">
-      <div class="section-icon icon-cool">🧘</div>
-      <div class="section-info">
-        <div class="section-title">Cool Down</div>
-        <div class="section-meta">5 minutes · Recovery &amp; breathwork</div>
+    <div class="section-card" id="section-cooldown">
+      <div class="section-header" onclick="toggleSection('cooldown')">
+        <div class="section-icon icon-cool">🧘</div>
+        <div class="section-info"><div class="section-title">Cool Down</div><div class="section-meta">5 minutes · Recovery &amp; breathwork</div></div>
+        <div class="section-status" id="status-cooldown">⭕</div>
+        <div class="chevron">▼</div>
       </div>
-      <div class="section-status" id="status-cooldown">⭕</div>
-      <div class="chevron">▼</div>
-    </div>
-    <div class="section-body">
-      <div class="cooldown-item"><div class="cooldown-name">🐍 Cobra Stretch</div><div class="cooldown-tip">Reverse the hunched bike position · open chest &amp; shoulders</div></div>
-      <div class="cooldown-item"><div class="cooldown-name">🦋 90/90 Hip Stretch</div><div class="cooldown-tip">Open tight hip flexors from riding &amp; running</div></div>
-      <div class="cooldown-item"><div class="cooldown-name">🙏 Child's Pose</div><div class="cooldown-tip">Deep nasal breathing to down-regulate your nervous system</div></div>
-
-      <div class="timer-box">
-        <div class="timer-label-top">Cool-Down Timer</div>
-        <div class="timer-display" id="cooldownTimerDisplay">5:00</div>
-        <div class="timer-btns">
-          <button class="timer-btn primary" id="cooldownBtn" onclick="timerAction('cooldown')">Start</button>
-          <button class="timer-btn" onclick="timerReset('cooldown')">Reset</button>
+      <div class="section-body">
+        <div class="cooldown-item"><div class="cooldown-name">🐍 Cobra Stretch</div><div class="cooldown-tip">Reverse the hunched bike position</div></div>
+        <div class="cooldown-item"><div class="cooldown-name">🦋 90/90 Hip Stretch</div><div class="cooldown-tip">Open tight hip flexors</div></div>
+        <div class="cooldown-item"><div class="cooldown-name">🙏 Child's Pose</div><div class="cooldown-tip">Deep nasal breathing to down-regulate your nervous system</div></div>
+        <div class="timer-box">
+          <div class="timer-label-top">Cool-Down Timer</div>
+          <div class="timer-display" id="cooldownTimerDisplay">5:00</div>
+          <div class="timer-btns">
+            <button class="timer-btn primary" id="cooldownBtn" onclick="timerAction('cooldown')">Start</button>
+            <button class="timer-btn" onclick="timerReset('cooldown')">Reset</button>
+          </div>
         </div>
+        <button class="complete-btn" onclick="markSectionDone('cooldown')">✓ Cool Down Complete</button>
       </div>
-      <button class="complete-btn" onclick="markSectionDone('cooldown')">✓ Cool Down Complete</button>
     </div>
-  </div>
 
-  <!-- FINISH WORKOUT -->
-  <button class="complete-btn" id="finishBtn" onclick="finishWorkout()" style="background: linear-gradient(135deg,#1a6e3c,#27ae60); box-shadow: 0 4px 16px rgba(39,174,96,0.35); font-size:1.05rem; padding:18px;" disabled>
+  </div><!-- /workout-ss -->
+
+  <!-- ════ DAVE'S KETTLEBELL ════ -->
+  <div id="workout-kb" style="display:none">
+
+    <div class="section-card" id="section-kb-warmup">
+      <div class="section-header" onclick="toggleSection('kb-warmup')">
+        <div class="section-icon icon-warmup">☀️</div>
+        <div class="section-info"><div class="section-title">Warm-Up</div><div class="section-meta">8 minutes · Get loose and warm</div></div>
+        <div class="section-status" id="status-kb-warmup">⭕</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Cat-Cow</div><div class="ex-detail">1 minute</div></div></div>
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Glute Bridges</div><div class="ex-detail">1 minute</div></div></div>
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Bodyweight Squats</div><div class="ex-detail">1 minute</div></div></div>
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Bird-Dogs</div><div class="ex-detail">2 minutes</div></div></div>
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Halos</div><div class="ex-detail">2 minutes · light bell</div></div></div>
+        <div class="exercise"><div class="ex-bullet"></div><div class="ex-info"><div class="ex-name">Plank</div><div class="ex-detail">1 minute</div></div></div>
+        <div class="timer-box" style="background:linear-gradient(135deg,var(--kb-dark),var(--kb-primary))">
+          <div class="timer-label-top">Warm-Up Timer</div>
+          <div class="timer-display" id="kbWarmupTimerDisplay">8:00</div>
+          <div class="timer-btns">
+            <button class="timer-btn primary" id="kbWarmupBtn" onclick="timerAction('kb-warmup')">Start</button>
+            <button class="timer-btn" onclick="timerReset('kb-warmup')">Reset</button>
+          </div>
+        </div>
+        <button class="complete-btn" style="background:linear-gradient(135deg,var(--kb-dark),var(--kb-primary));box-shadow:0 4px 16px rgba(107,63,160,0.35)" onclick="markSectionDone('kb-warmup')">✓ Warm-Up Complete</button>
+      </div>
+    </div>
+
+    <div class="section-card" id="section-kb-complex">
+      <div class="section-header" onclick="toggleSection('kb-complex')">
+        <div class="section-icon icon-complex">💜</div>
+        <div class="section-info"><div class="section-title">The Complex</div><div class="section-meta">25 minutes · 5–6 rounds · 60–90s rest</div></div>
+        <div class="section-status" id="status-kb-complex">⭕</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div style="font-size:0.75rem;color:var(--text-muted);margin:8px 0 12px;line-height:1.5;">Perform all 5 moves back-to-back. With one bell: complete all reps on the right, then all reps on the left.</div>
+        <div class="exercise"><div class="ex-num">1</div><div class="ex-info"><div class="ex-name">Deadlift</div><div class="ex-detail">5 reps</div><div class="ex-cue">Butt back, flat back</div></div></div>
+        <div class="exercise"><div class="ex-num">2</div><div class="ex-info"><div class="ex-name">Clean</div><div class="ex-detail">5 reps</div><div class="ex-cue">Keep bell close to body</div></div></div>
+        <div class="exercise"><div class="ex-num">3</div><div class="ex-info"><div class="ex-name">Goblet Squat</div><div class="ex-detail">5 reps</div><div class="ex-cue">Elbows to knees</div></div></div>
+        <div class="exercise"><div class="ex-num">4</div><div class="ex-info"><div class="ex-name">Press</div><div class="ex-detail">5 reps</div><div class="ex-cue">Punch the ceiling</div></div></div>
+        <div class="exercise"><div class="ex-num">5</div><div class="ex-info"><div class="ex-name">Swings</div><div class="ex-detail">10 reps</div><div class="ex-cue">Snap your hips</div></div></div>
+        <div class="round-tracker">
+          <div class="round-tracker-label">Round Progress · Goal: 5–6</div>
+          <div class="rounds-row" id="rounds-kb-complex">
+            <div class="round-pill kb" onclick="toggleRound('kb-complex',0)">R1</div>
+            <div class="round-pill kb" onclick="toggleRound('kb-complex',1)">R2</div>
+            <div class="round-pill kb" onclick="toggleRound('kb-complex',2)">R3</div>
+            <div class="round-pill kb" onclick="toggleRound('kb-complex',3)">R4</div>
+            <div class="round-pill kb" onclick="toggleRound('kb-complex',4)">R5</div>
+            <div class="round-pill kb" onclick="toggleRound('kb-complex',5)">R6</div>
+          </div>
+        </div>
+        <div class="timer-box kb-rest">
+          <div class="timer-label-top">Rest Timer</div>
+          <div class="timer-display" id="restTimerKB">1:15</div>
+          <div class="timer-sublabel">60–90 seconds between rounds</div>
+          <div class="timer-btns">
+            <button class="timer-btn primary" id="restBtnKB" onclick="timerAction('kb-rest')">Start Rest</button>
+            <button class="timer-btn" onclick="timerReset('kb-rest')">Reset</button>
+          </div>
+        </div>
+        <button class="complete-btn" style="background:linear-gradient(135deg,var(--kb-dark),var(--kb-primary));box-shadow:0 4px 16px rgba(107,63,160,0.35)" onclick="markSectionDone('kb-complex')">✓ The Complex Complete</button>
+      </div>
+    </div>
+
+    <div class="section-card" id="section-kb-finisher">
+      <div class="section-header" onclick="toggleSection('kb-finisher')">
+        <div class="section-icon icon-finisher">🏋️</div>
+        <div class="section-info"><div class="section-title">Finisher · Grip &amp; Core</div><div class="section-meta">7 minutes · Farmer's Carry + Plank Drags</div></div>
+        <div class="section-status" id="status-kb-finisher">⭕</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div style="font-size:0.75rem;color:var(--text-muted);margin:8px 0 12px;line-height:1.5;">The timer guides you through 3 carry loops then Plank Drags. Hit Start and follow along.</div>
+        <div class="timer-box finisher-box">
+          <div class="emom-minute-badge" id="finisherStepNum">Step 1 of 13</div>
+          <div class="finisher-step-label" id="finisherLabel">Farmer's Carry</div>
+          <div class="finisher-step-sub" id="finisherSub">Right Hand · Set 1 of 3</div>
+          <div class="timer-display" id="finisherDisplay">0:45</div>
+          <div class="emom-progress" id="finisherDots" style="margin-top:10px"></div>
+          <div class="timer-btns">
+            <button class="timer-btn primary" id="finisherBtn" onclick="finisherAction()">Start Finisher</button>
+            <button class="timer-btn" onclick="finisherReset()">Reset</button>
+          </div>
+        </div>
+        <button class="complete-btn" style="background:linear-gradient(135deg,var(--kb-dark),var(--kb-primary));box-shadow:0 4px 16px rgba(107,63,160,0.35)" onclick="markSectionDone('kb-finisher')">✓ Finisher Complete</button>
+      </div>
+    </div>
+
+    <div class="section-card" id="section-kb-cooldown">
+      <div class="section-header" onclick="toggleSection('kb-cooldown')">
+        <div class="section-icon icon-cool">🧘</div>
+        <div class="section-info"><div class="section-title">Cool Down</div><div class="section-meta">5 minutes · Deep breaths</div></div>
+        <div class="section-status" id="status-kb-cooldown">⭕</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div class="cooldown-item"><div class="cooldown-name">🙏 Child's Pose</div><div class="cooldown-tip">1 minute · focus on deep breathing</div></div>
+        <div class="cooldown-item"><div class="cooldown-name">🦋 Pigeon Stretch Right</div><div class="cooldown-tip">1 minute</div></div>
+        <div class="cooldown-item"><div class="cooldown-name">🦋 Pigeon Stretch Left</div><div class="cooldown-tip">1 minute</div></div>
+        <div class="cooldown-item"><div class="cooldown-name">🌿 Forward Fold</div><div class="cooldown-tip">2 minutes · let gravity do the work</div></div>
+        <div class="timer-box" style="background:linear-gradient(135deg,var(--kb-dark),var(--kb-primary))">
+          <div class="timer-label-top">Cool-Down Timer</div>
+          <div class="timer-display" id="kbCooldownTimerDisplay">5:00</div>
+          <div class="timer-btns">
+            <button class="timer-btn primary" id="kbCooldownBtn" onclick="timerAction('kb-cooldown')">Start</button>
+            <button class="timer-btn" onclick="timerReset('kb-cooldown')">Reset</button>
+          </div>
+        </div>
+        <button class="complete-btn" style="background:linear-gradient(135deg,var(--kb-dark),var(--kb-primary));box-shadow:0 4px 16px rgba(107,63,160,0.35)" onclick="markSectionDone('kb-cooldown')">✓ Cool Down Complete</button>
+      </div>
+    </div>
+
+  </div><!-- /workout-kb -->
+
+  <button class="complete-btn" id="finishBtn" onclick="finishWorkout()" style="background:linear-gradient(135deg,#1a6e3c,#27ae60);box-shadow:0 4px 16px rgba(39,174,96,0.35);font-size:1.05rem;padding:18px;" disabled>
     🏁 Finish Workout &amp; Save
   </button>
-
 </div><!-- /page-workout -->
 
-<!-- HISTORY PAGE -->
+<!-- ══ HISTORY PAGE ══ -->
 <div class="page" id="page-history">
   <div id="historyContent"></div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
 // ══════════════════════════════════════════════
-// STATE
+// WORKOUT DEFINITIONS
 // ══════════════════════════════════════════════
-const SECTIONS = ['warmup','a','b','c','cooldown'];
-let sectionDone = { warmup:false, a:false, b:false, c:false, cooldown:false };
-let rounds = { a:[false,false,false,false], b:[false,false,false] };
+let currentWorkout = null;
 
-// Timer state objects: { interval, remaining, running, total }
+const WK = {
+  ss: {
+    id: 'ss', name: 'Surf & Summit', emoji: '🌊', totalMin: 45,
+    sections: ['warmup','a','b','c','cooldown'],
+    sectionDone: { warmup:false, a:false, b:false, c:false, cooldown:false },
+    rounds: { a:[false,false,false,false], b:[false,false,false] }
+  },
+  kb: {
+    id: 'kb', name: "Dave's Kettlebell", emoji: '🔔', totalMin: 45,
+    sections: ['kb-warmup','kb-complex','kb-finisher','kb-cooldown'],
+    sectionDone: { 'kb-warmup':false, 'kb-complex':false, 'kb-finisher':false, 'kb-cooldown':false },
+    rounds: { 'kb-complex': Array(6).fill(false) }
+  }
+};
+
+// ── TIMERS ──
 const timers = {};
-
 function makeTimer(id, seconds, displayId, btnId) {
-  timers[id] = { interval: null, remaining: seconds, total: seconds, running: false, displayId, btnId };
+  timers[id] = { interval:null, remaining:seconds, total:seconds, running:false, displayId, btnId };
 }
+makeTimer('warmup',    8*60, 'warmupTimerDisplay',    'warmupBtn');
+makeTimer('restA',       60, 'restTimerA',             'restBtnA');
+makeTimer('restB',       45, 'restTimerB',             'restBtnB');
+makeTimer('cooldown',  5*60, 'cooldownTimerDisplay',   'cooldownBtn');
+makeTimer('kb-warmup', 8*60, 'kbWarmupTimerDisplay',   'kbWarmupBtn');
+makeTimer('kb-rest',     75, 'restTimerKB',            'restBtnKB');
+makeTimer('kb-cooldown',5*60,'kbCooldownTimerDisplay', 'kbCooldownBtn');
 
-// Overall countdown
-let overallInterval = null;
-let overallRunning = false;
-let overallRemaining = 45 * 60;
+// ── OVERALL ──
+let overallInterval = null, overallRunning = false, overallRemaining = 45*60;
 
-// EMOM state
-let emomState = { interval: null, running: false, totalSecs: 8*60, remaining: 8*60, currentMinute: 0 };
+// ── EMOM (SS Block C) ──
+let emomState = { interval:null, running:false, totalSecs:8*60, remaining:8*60 };
+const emomOdd  = { type:'ODD MINUTE',  text:'15 KB Swings + 5 Burpees' };
+const emomEven = { type:'EVEN MINUTE', text:"30-second Farmer's Walk (switch hands halfway)" };
 
-// Rounds
-makeTimer('warmup', 8*60, 'warmupTimerDisplay', 'warmupBtn');
-makeTimer('restA',  60,   'restTimerA',         'restBtnA');
-makeTimer('restB',  45,   'restTimerB',         'restBtnB');
-makeTimer('cooldown', 5*60, 'cooldownTimerDisplay', 'cooldownBtn');
+// ── FINISHER (KB) ──
+const FINISHER_STEPS = [
+  { label:"Farmer's Carry", sub:'Right Hand · Set 1 of 3', dur:45, type:'work' },
+  { label:'Rest',            sub:'Breathe...',              dur:15, type:'rest' },
+  { label:"Farmer's Carry", sub:'Left Hand · Set 1 of 3',  dur:45, type:'work' },
+  { label:'Rest',            sub:'Breathe...',              dur:15, type:'rest' },
+  { label:"Farmer's Carry", sub:'Right Hand · Set 2 of 3', dur:45, type:'work' },
+  { label:'Rest',            sub:'Breathe...',              dur:15, type:'rest' },
+  { label:"Farmer's Carry", sub:'Left Hand · Set 2 of 3',  dur:45, type:'work' },
+  { label:'Rest',            sub:'Breathe...',              dur:15, type:'rest' },
+  { label:"Farmer's Carry", sub:'Right Hand · Set 3 of 3', dur:45, type:'work' },
+  { label:'Rest',            sub:'Breathe...',              dur:15, type:'rest' },
+  { label:"Farmer's Carry", sub:'Left Hand · Set 3 of 3',  dur:45, type:'work' },
+  { label:'Rest',            sub:'Breathe...',              dur:15, type:'rest' },
+  { label:'Plank Drags',     sub:'1 min · core finish',     dur:60, type:'work' },
+];
+let finisherState = { interval:null, running:false, step:0, remaining:FINISHER_STEPS[0].dur };
 
 // ══════════════════════════════════════════════
-// TABS
+// NAVIGATION
 // ══════════════════════════════════════════════
 function showTab(tab) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-'+tab).classList.add('active');
-  event.currentTarget.classList.add('active');
+  const idx = { home:0, workout:1, history:2 }[tab];
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
   if (tab === 'history') renderHistory();
+  if (tab === 'home') renderHomeRecent();
+}
+
+function selectWorkout(id) {
+  currentWorkout = id;
+  const wk = WK[id];
+
+  // Header theme
+  document.getElementById('appTitle').textContent = wk.emoji + ' ' + wk.name;
+  document.getElementById('appSubtitle').textContent = wk.totalMin + ' min · Kettlebell';
+  const isKb = id === 'kb';
+  document.getElementById('appHeader').classList.toggle('kb-theme', isKb);
+  document.getElementById('tabBar').classList.toggle('kb-theme', isKb);
+
+  // Show correct workout content
+  document.getElementById('workout-ss').style.display = id === 'ss' ? 'block' : 'none';
+  document.getElementById('workout-kb').style.display = id === 'kb' ? 'block' : 'none';
+
+  // Enable workout tab
+  document.getElementById('workoutTabBtn').disabled = false;
+
+  // Reset overall timer
+  clearInterval(overallInterval);
+  overallRunning = false;
+  overallRemaining = wk.totalMin * 60;
+  document.getElementById('overallTimerDisplay').textContent = formatTime(overallRemaining);
+  document.getElementById('overallTimerLabel').textContent = 'TAP TO START';
+
+  updateProgress();
+  showTab('workout');
 }
 
 // ══════════════════════════════════════════════
 // SECTIONS
 // ══════════════════════════════════════════════
 function toggleSection(id) {
-  const card = document.getElementById('section-'+id);
-  card.classList.toggle('open');
+  document.getElementById('section-'+id).classList.toggle('open');
 }
 
 function markSectionDone(id) {
-  sectionDone[id] = true;
-  const card = document.getElementById('section-'+id);
-  card.classList.add('completed');
+  if (!currentWorkout) return;
+  const wk = WK[currentWorkout];
+  wk.sectionDone[id] = true;
+  document.getElementById('section-'+id).classList.add('completed');
   document.getElementById('status-'+id).textContent = '✅';
   updateProgress();
   toast('Section complete! 🎉');
-  // Auto-collapse and open next
-  card.classList.remove('open');
-  const idx = SECTIONS.indexOf(id);
-  if (idx < SECTIONS.length - 1) {
-    const next = document.getElementById('section-'+SECTIONS[idx+1]);
+  document.getElementById('section-'+id).classList.remove('open');
+  const idx = wk.sections.indexOf(id);
+  if (idx < wk.sections.length - 1) {
+    const next = document.getElementById('section-'+wk.sections[idx+1]);
     if (next) next.classList.add('open');
   }
 }
 
 function updateProgress() {
-  const done = SECTIONS.filter(s => sectionDone[s]).length;
-  const pct = (done / SECTIONS.length) * 100;
+  if (!currentWorkout) return;
+  const wk = WK[currentWorkout];
+  const done = wk.sections.filter(s => wk.sectionDone[s]).length;
+  const pct = (done / wk.sections.length) * 100;
   document.getElementById('overallProgress').style.width = pct + '%';
-  document.getElementById('overallProgressText').textContent = done + ' of ' + SECTIONS.length + ' sections complete';
-  if (done === SECTIONS.length) {
-    document.getElementById('finishBtn').disabled = false;
-  }
+  document.getElementById('overallProgressText').textContent = done + ' of ' + wk.sections.length + ' sections complete';
+  document.getElementById('finishBtn').disabled = done < wk.sections.length;
 }
 
 // ══════════════════════════════════════════════
 // ROUNDS
 // ══════════════════════════════════════════════
 function toggleRound(block, idx) {
-  const wasOff = !rounds[block][idx];
-  rounds[block][idx] = wasOff;
+  if (!currentWorkout) return;
+  const wk = WK[currentWorkout];
+  const wasOff = !wk.rounds[block][idx];
+  wk.rounds[block][idx] = wasOff;
   renderRounds(block);
 
-  // Auto-start rest timer when marking a round done (not the last round)
-  const lastIdx = rounds[block].length - 1;
+  const lastIdx = wk.rounds[block].length - 1;
   if (wasOff && idx < lastIdx) {
-    const timerId = block === 'a' ? 'restA' : 'restB';
-    const t = timers[timerId];
-    // Reset then start
-    timerReset(timerId);
-    setTimeout(() => timerAction(timerId), 100);
+    const restId = (block === 'a') ? 'restA' : (block === 'b') ? 'restB' : 'kb-rest';
+    timerReset(restId);
+    setTimeout(() => timerAction(restId), 100);
   }
 }
 
 function renderRounds(block) {
-  const pills = document.querySelectorAll(`#rounds-${block} .round-pill`);
-  pills.forEach((p, i) => {
-    p.classList.toggle('done', rounds[block][i]);
+  if (!currentWorkout) return;
+  const wk = WK[currentWorkout];
+  document.querySelectorAll(`#rounds-${block} .round-pill`).forEach((p, i) => {
+    p.classList.toggle('done', wk.rounds[block][i]);
   });
 }
 
@@ -677,17 +686,17 @@ function renderRounds(block) {
 // GENERIC TIMER
 // ══════════════════════════════════════════════
 function formatTime(secs) {
-  const m = Math.floor(secs / 60);
-  const s = secs % 60;
+  const m = Math.floor(secs / 60), s = secs % 60;
   return m + ':' + String(s).padStart(2,'0');
 }
+
+const REST_IDS = ['restA','restB','kb-rest'];
 
 function timerAction(id) {
   if (id === 'emom') { emomAction(); return; }
   const t = timers[id];
   if (!t) return;
   if (t.running) {
-    // Pause
     clearInterval(t.interval);
     t.running = false;
     document.getElementById(t.btnId).textContent = 'Resume';
@@ -704,7 +713,7 @@ function timerAction(id) {
         t.running = false;
         document.getElementById(t.btnId).textContent = 'Done!';
         vibrate();
-        toast(id === 'restA' || id === 'restB' ? 'Rest over — next round! 💪' : 'Timer done! ✅');
+        toast(REST_IDS.includes(id) ? 'Rest over — next round! 💪' : 'Timer done! ✅');
         setTimeout(() => timerReset(id), 2000);
       }
     }, 1000);
@@ -714,19 +723,17 @@ function timerAction(id) {
 function timerReset(id) {
   if (id === 'emom') { emomReset(); return; }
   const t = timers[id];
+  if (!t) return;
   clearInterval(t.interval);
   t.running = false;
   t.remaining = t.total;
   document.getElementById(t.displayId).textContent = formatTime(t.total);
-  document.getElementById(t.btnId).textContent = id === 'restA' || id === 'restB' ? 'Start Rest' : 'Start';
+  document.getElementById(t.btnId).textContent = REST_IDS.includes(id) ? 'Start Rest' : 'Start';
 }
 
 // ══════════════════════════════════════════════
-// EMOM TIMER
+// EMOM (SS Block C)
 // ══════════════════════════════════════════════
-const emomOdd = { type: 'ODD MINUTE', text: '15 KB Swings + 5 Burpees' };
-const emomEven = { type: 'EVEN MINUTE', text: '30-second Farmer\'s Walk (switch hands halfway)' };
-
 function emomAction() {
   if (emomState.running) {
     clearInterval(emomState.interval);
@@ -757,32 +764,19 @@ function emomAction() {
 
 function updateEmomDisplay() {
   const elapsed = emomState.totalSecs - emomState.remaining;
-  const minuteElapsed = Math.floor(elapsed / 60); // 0-based minutes completed
-  const secInMinute = elapsed % 60;
-  const currentMin = minuteElapsed + 1; // which minute we're IN (1-8)
-  const secsLeft = 60 - secInMinute;
-
+  const minElapsed = Math.floor(elapsed / 60);
+  const secInMin = elapsed % 60;
+  const curMin = minElapsed + 1;
   document.getElementById('emomTimerDisplay').textContent = formatTime(emomState.remaining);
-  document.getElementById('emomMinuteBadge').textContent = 'Minute ' + Math.min(currentMin, 8) + ' of 8';
-
-  // Task for current minute
-  const isOdd = (currentMin % 2 === 1);
-  const task = isOdd ? emomOdd : emomEven;
+  document.getElementById('emomMinuteBadge').textContent = 'Minute ' + Math.min(curMin,8) + ' of 8';
+  const task = (curMin % 2 === 1) ? emomOdd : emomEven;
   document.getElementById('emomTaskType').textContent = task.type;
   document.getElementById('emomTaskText').textContent = task.text;
-
-  // Dots: minutes completed are 'done', current is 'current'
-  for (let i = 1; i <= 8; i++) {
-    const dot = document.getElementById('edot-'+i);
-    if (i < currentMin) dot.className = 'emom-dot done';
-    else if (i === currentMin) dot.className = 'emom-dot current';
-    else dot.className = 'emom-dot';
+  for (let i=1;i<=8;i++) {
+    const d = document.getElementById('edot-'+i);
+    d.className = i < curMin ? 'emom-dot done' : i === curMin ? 'emom-dot current' : 'emom-dot';
   }
-
-  // Vibrate on each new minute start
-  if (secInMinute === 0 && elapsed > 0) {
-    vibrate();
-  }
+  if (secInMin === 0 && elapsed > 0) vibrate();
 }
 
 function emomReset() {
@@ -797,6 +791,69 @@ function emomReset() {
 }
 
 // ══════════════════════════════════════════════
+// FINISHER (KB interval machine)
+// ══════════════════════════════════════════════
+function buildFinisherDots() {
+  const el = document.getElementById('finisherDots');
+  el.innerHTML = FINISHER_STEPS.map((_,i) => `<div class="emom-dot" id="fdot-${i}"></div>`).join('');
+}
+
+function updateFinisherDisplay() {
+  const s = FINISHER_STEPS[finisherState.step];
+  document.getElementById('finisherDisplay').textContent = formatTime(finisherState.remaining);
+  document.getElementById('finisherLabel').textContent = s.label;
+  document.getElementById('finisherSub').textContent = s.sub;
+  document.getElementById('finisherStepNum').textContent = 'Step ' + (finisherState.step+1) + ' of ' + FINISHER_STEPS.length;
+  FINISHER_STEPS.forEach((_,i) => {
+    const d = document.getElementById('fdot-'+i);
+    if (d) d.className = i < finisherState.step ? 'emom-dot done' : i === finisherState.step ? 'emom-dot current' : 'emom-dot';
+  });
+}
+
+function finisherAction() {
+  if (finisherState.running) {
+    clearInterval(finisherState.interval);
+    finisherState.running = false;
+    document.getElementById('finisherBtn').textContent = 'Resume';
+  } else {
+    if (finisherState.step >= FINISHER_STEPS.length) { finisherReset(); return; }
+    finisherState.running = true;
+    document.getElementById('finisherBtn').textContent = 'Pause';
+    updateFinisherDisplay();
+    finisherState.interval = setInterval(() => {
+      finisherState.remaining--;
+      document.getElementById('finisherDisplay').textContent = formatTime(finisherState.remaining);
+      playCountdownBeep(finisherState.remaining);
+      if (finisherState.remaining <= 0) {
+        finisherState.step++;
+        if (finisherState.step >= FINISHER_STEPS.length) {
+          clearInterval(finisherState.interval);
+          finisherState.running = false;
+          document.getElementById('finisherBtn').textContent = 'Done!';
+          vibrate();
+          toast('Finisher done! 💪 Grip of steel!');
+          setTimeout(() => finisherReset(), 2000);
+          return;
+        }
+        vibrate();
+        beep(880, 0.2, 0.5);
+        finisherState.remaining = FINISHER_STEPS[finisherState.step].dur;
+        updateFinisherDisplay();
+      }
+    }, 1000);
+  }
+}
+
+function finisherReset() {
+  clearInterval(finisherState.interval);
+  finisherState.running = false;
+  finisherState.step = 0;
+  finisherState.remaining = FINISHER_STEPS[0].dur;
+  document.getElementById('finisherBtn').textContent = 'Start Finisher';
+  updateFinisherDisplay();
+}
+
+// ══════════════════════════════════════════════
 // OVERALL TIMER
 // ══════════════════════════════════════════════
 function toggleOverallTimer() {
@@ -805,7 +862,8 @@ function toggleOverallTimer() {
     overallRunning = false;
     document.getElementById('overallTimerLabel').textContent = 'PAUSED';
   } else {
-    if (overallRemaining <= 0) { overallRemaining = 45*60; }
+    const total = currentWorkout ? WK[currentWorkout].totalMin * 60 : 45*60;
+    if (overallRemaining <= 0) overallRemaining = total;
     overallRunning = true;
     document.getElementById('overallTimerLabel').textContent = 'TAP TO PAUSE';
     overallInterval = setInterval(() => {
@@ -825,40 +883,41 @@ function toggleOverallTimer() {
 // FINISH & HISTORY
 // ══════════════════════════════════════════════
 function finishWorkout() {
+  if (!currentWorkout) return;
+  const wk = WK[currentWorkout];
   const history = getHistory();
-  const entry = {
-    date: new Date().toISOString(),
-    elapsed: 45*60 - overallRemaining
-  };
-  history.unshift(entry);
+  history.unshift({ date: new Date().toISOString(), workout: wk.id, name: wk.name, elapsed: wk.totalMin*60 - overallRemaining });
   localStorage.setItem('ss_history', JSON.stringify(history));
-  // Reset
-  SECTIONS.forEach(s => { sectionDone[s] = false; });
-  rounds = { a:[false,false,false,false], b:[false,false,false] };
-  SECTIONS.forEach(s => {
+
+  // Reset state
+  wk.sections.forEach(s => { wk.sectionDone[s] = false; });
+  wk.sections.forEach(s => {
     document.getElementById('section-'+s).classList.remove('completed','open');
     document.getElementById('status-'+s).textContent = '⭕';
   });
-  Object.keys(timers).forEach(k => timerReset(k));
-  emomReset();
+
+  if (currentWorkout === 'ss') {
+    wk.rounds.a = [false,false,false,false];
+    wk.rounds.b = [false,false,false];
+    ['warmup','restA','restB','cooldown'].forEach(k => timerReset(k));
+    emomReset();
+    renderRounds('a'); renderRounds('b');
+  } else {
+    wk.rounds['kb-complex'] = Array(6).fill(false);
+    ['kb-warmup','kb-rest','kb-cooldown'].forEach(k => timerReset(k));
+    finisherReset();
+    renderRounds('kb-complex');
+  }
+
   clearInterval(overallInterval);
   overallRunning = false;
-  overallRemaining = 45*60;
-  document.getElementById('overallTimerDisplay').textContent = '45:00';
+  overallRemaining = wk.totalMin * 60;
+  document.getElementById('overallTimerDisplay').textContent = formatTime(overallRemaining);
   document.getElementById('overallTimerLabel').textContent = 'TAP TO START';
   updateProgress();
-  document.getElementById('finishBtn').disabled = true;
-  renderRounds('a'); renderRounds('b');
-  toast('Workout saved! See you next time 🤙');
-  setTimeout(() => showTabDirect('history'), 800);
-}
 
-function showTabDirect(tab) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-'+tab).classList.add('active');
-  document.querySelectorAll('.tab-btn')[tab==='workout'?0:1].classList.add('active');
-  if (tab === 'history') renderHistory();
+  toast('Workout saved! See you next time 🤙');
+  setTimeout(() => showTab('history'), 800);
 }
 
 function getHistory() {
@@ -868,41 +927,48 @@ function getHistory() {
 function renderHistory() {
   const history = getHistory();
   const el = document.getElementById('historyContent');
-  if (history.length === 0) {
-    el.innerHTML = `<div class="history-empty"><div class="big-emoji">🌊</div><div style="font-weight:700;font-size:1rem;margin-bottom:8px;">No workouts yet</div><div style="font-size:0.85rem;">Complete your first Surf &amp; Summit session to start tracking your progress.</div></div>`;
+  if (!history.length) {
+    el.innerHTML = `<div class="history-empty"><div class="big-emoji">💪</div><div style="font-weight:700;font-size:1rem;margin-bottom:8px;">No workouts yet</div><div style="font-size:0.85rem;">Complete your first session to start tracking progress.</div></div>`;
     return;
   }
-
-  // Streak calc
   const streak = calcStreak(history);
-  const total = history.length;
-
-  let html = `<div class="streak-card">
-    <div><div class="streak-num">${streak}</div></div>
-    <div><div style="font-size:1.1rem;font-weight:700;">Day Streak 🔥</div><div class="streak-label">${total} total workout${total!==1?'s':''} logged</div><div class="streak-sub">Keep showing up 🤙</div></div>
-  </div>`;
-
+  let html = `<div class="streak-card"><div><div class="streak-num">${streak}</div></div><div><div style="font-size:1.1rem;font-weight:700;">Day Streak 🔥</div><div class="streak-label">${history.length} workout${history.length!==1?'s':''} logged</div><div class="streak-sub">Keep showing up 🤙</div></div></div>`;
   history.forEach(entry => {
     const d = new Date(entry.date);
-    const day = d.getDate();
-    const mon = d.toLocaleString('default',{month:'short'}).toUpperCase();
-    const time = d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    const wkId = entry.workout || 'ss';
+    const name = entry.name || 'Surf & Summit';
     const mins = entry.elapsed ? Math.round(entry.elapsed/60) : 45;
     html += `<div class="history-item">
-      <div class="history-date-badge"><div class="day">${day}</div><div class="mon">${mon}</div></div>
-      <div class="history-detail"><div class="title">Surf &amp; Summit</div><div class="sub">${time} · ~${mins} min</div></div>
+      <div class="history-date-badge ${wkId}"><div class="day">${d.getDate()}</div><div class="mon">${d.toLocaleString('default',{month:'short'}).toUpperCase()}</div></div>
+      <div class="history-detail"><div class="title">${name}</div><div class="sub">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} · ~${mins} min</div></div>
       <div class="history-check">✅</div>
     </div>`;
   });
-
   el.innerHTML = html;
+}
+
+function renderHomeRecent() {
+  const history = getHistory();
+  const section = document.getElementById('homeRecentSection');
+  const list = document.getElementById('homeRecentList');
+  if (!history.length) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  list.innerHTML = history.slice(0,3).map(entry => {
+    const d = new Date(entry.date);
+    const wkId = entry.workout || 'ss';
+    const name = entry.name || 'Surf & Summit';
+    return `<div class="history-item" style="padding:10px 14px">
+      <div class="history-date-badge ${wkId}" style="min-width:40px;padding:4px 8px"><div class="day" style="font-size:1.1rem">${d.getDate()}</div><div class="mon">${d.toLocaleString('default',{month:'short'}).toUpperCase()}</div></div>
+      <div class="history-detail"><div class="title">${name}</div><div class="sub">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div>
+      <div class="history-check" style="font-size:1.1rem">✅</div>
+    </div>`;
+  }).join('');
 }
 
 function calcStreak(history) {
   if (!history.length) return 0;
-  let streak = 0;
-  let check = new Date(); check.setHours(0,0,0,0);
-  for (let i=0;i<history.length;i++) {
+  let streak = 0, check = new Date(); check.setHours(0,0,0,0);
+  for (let i=0; i<history.length; i++) {
     const d = new Date(history[i].date); d.setHours(0,0,0,0);
     if (d.getTime() === check.getTime()) { streak++; check.setDate(check.getDate()-1); }
     else if (d.getTime() < check.getTime()) break;
@@ -911,44 +977,31 @@ function calcStreak(history) {
 }
 
 // ══════════════════════════════════════════════
-// AUDIO — Web Audio API beeps
+// AUDIO
 // ══════════════════════════════════════════════
 let audioCtx = null;
-
 function getAudioCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   return audioCtx;
 }
-
-// Unlock audio on first touch (required by iOS)
-document.addEventListener('touchstart', () => { try { getAudioCtx(); } catch(e){} }, { once: true });
-document.addEventListener('click',      () => { try { getAudioCtx(); } catch(e){} }, { once: true });
+document.addEventListener('touchstart', () => { try { getAudioCtx(); } catch(e){} }, { once:true });
+document.addEventListener('click',      () => { try { getAudioCtx(); } catch(e){} }, { once:true });
 
 function beep(freq, duration, volume) {
   try {
     const ctx = getAudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = freq;
-    osc.type = 'sine';
-    gain.gain.setValueAtTime(volume || 0.4, ctx.currentTime);
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = freq; osc.type = 'sine';
+    gain.gain.setValueAtTime(volume||0.4, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + duration);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + duration);
   } catch(e) {}
 }
 
 function playCountdownBeep(remaining) {
-  if (remaining === 3 || remaining === 2 || remaining === 1) {
-    beep(660, 0.12, 0.35); // short tick
-  } else if (remaining === 0) {
-    // Triple beep for completion
-    beep(880, 0.15, 0.5);
-    setTimeout(() => beep(880, 0.15, 0.5), 180);
-    setTimeout(() => beep(1100, 0.35, 0.6), 360);
-  }
+  if (remaining === 3 || remaining === 2 || remaining === 1) beep(660, 0.12, 0.35);
+  else if (remaining === 0) { beep(880,0.15,0.5); setTimeout(()=>beep(880,0.15,0.5),180); setTimeout(()=>beep(1100,0.35,0.6),360); }
 }
 
 // ══════════════════════════════════════════════
@@ -960,13 +1013,12 @@ function toast(msg) {
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2600);
 }
+function vibrate() { if (navigator.vibrate) navigator.vibrate([200,100,200]); }
 
-function vibrate() {
-  if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-}
-
-// Init
-updateProgress();
+// ── INIT ──
+buildFinisherDots();
+updateFinisherDisplay();
+renderHomeRecent();
 </script>
 </body>
 </html>
